@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Меню</title>
+{% endblock %}
+
+{% block content %}
+{% for object in object_list %}
+<div class="col">
+    <div class="card shadow-sm">
+        <svg class="bd-placeholder-img card-img-top" width="100%" height="225"
+             xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail"
+             preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title>
+            <rect width="100%" height="100%" fill="#55595c"/>
+            <text x="25%" y="50%" fill="#eceeef" dy=".3em">Здесь может быть фото блюда</text>
+        </svg>
+        <div class="card-body text-center">
+            <p class="card-text"><h2>{{object.name}}</h2> цена: {{object.price}} руб.</p>
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="addToCart({{ object.id }})">
+                        Добавить в заказ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+    function addToCart(itemId) {
+        fetch(`/items/add-cart/${itemId}/`, {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message); // Показать сообщение о добавлении
+
+            // Обновляем корзину
+            loadCartItems();
+
+            // Обновляем количество товаров в корзине
+            updateCartItemCount();
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Не удалось добавить блюдо в корзину.');
+        });
+    }
+
+    function updateCartItemCount() {
+        // Отправляем запрос на сервер для получения актуального количества товаров в корзине
+        fetch("{% url 'Items:view_cart' %}")
+            .then(response => response.json())
+            .then(data => {
+                const cartItemCount = data.total_item_count; // Получаем количество товаров
+                const cartItemCountElement = document.querySelector('.badge.bg-danger');
+                cartItemCountElement.innerText = cartItemCount > 0 ? cartItemCount : '0'; // Обновляем количество
+            })
+            .catch(error => {
+                console.error('Ошибка при обновлении количества товаров в корзине:', error);
+            });
+    }
+</script>
+{% endblock %}
+

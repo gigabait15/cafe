@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Корзина</title>
+{% endblock %}
+
+{% block content %}
+
+{% if total_item_count > 0 %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Название</th>
+                <th scope="col">Количество</th>
+                <th scope="col">Цена</th>
+                <th scope="col">Общая стоимость</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price }} руб.</td>
+                    <td>{{ item.item_price}} руб.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="d-flex flex-column">
+        <h3>Общее количество товаров - {{ total_item_count }}</h3>
+        <h3>Итого: {{ total_price }} руб.</h3>
+    </div>
+
+    <form method="post" action="{% url 'Items:confirm_order' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="tableNumber" class="form-label">Номер стола</label>
+            <input type="number" class="form-control" id="tableNumber" name="table_number" required min="1" max="100">
+        </div>
+        <button type="submit" class="btn btn-primary">Подтвердить заказ</button>
+    </form>
+{% else %}
+<div class="d-flex flex-column justify-content-center align-items-center" style="height: 20vh;">
+    <h1>Корзина пуста</h1>
+</div>
+
+{% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 20vh;">
+    <form method="post" class="p-4 bg-light border rounded" style="width: 100%; max-width: 500px;">
+        {% csrf_token %}
+        <fieldset class="mb-3">
+            <legend class="text-center mb-4">Изменить статус заказа</legend>
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text text-muted">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </fieldset>
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-success btn-lg">Сохранить</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

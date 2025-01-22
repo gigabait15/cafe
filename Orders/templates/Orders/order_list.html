@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Список заказов</title>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Список заказов</h1>
+
+    {% if search_query %}
+    <p>Результаты поиска:</p>
+    {% endif %}
+
+    {% if order_details %}
+    {% for order, details in order_details.items %}
+    <div class="card mb-3">
+        <div class="card-header">
+            <h2>Заказ № {{ order.id }}</h2>
+            <p>Номер стола: {{ order.table_number }}</p>
+            <p>Статус: {{ order.get_status_display }}</p>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Количество</th>
+                    <th>Цена</th>
+                    <th>Общая стоимость</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for cart in details.carts %}
+                <tr>
+                    <td>{{ cart.item_name }}</td>
+                    <td>{{ cart.quantity }}</td>
+                    <td>{{ cart.price }} руб.</td>
+                    <td>{{ cart.total_price }} руб.</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            <p><strong>Общая стоимость заказа: {{ details.total_order_price }} руб.</strong></p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'Orders:order-update' order.id %}" class="btn btn-outline-success">Изменить статус</a>
+                <a href="{% url 'Orders:order-delete' order.id %}" class="btn btn-outline-danger">Удалить заказ</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>Заказы не найдены</p>
+    {% endif %}
+</div>
+
+
+{% endblock %}

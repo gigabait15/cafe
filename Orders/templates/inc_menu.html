@@ -1,0 +1,117 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'Items:menu' %}">Меню</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page"
+                       href="{% url 'Orders:order-list' %}">Список заказов</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'Items:cart_items' %}">Подтвердить заказ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page"
+                       href="{% url 'Orders:revenue' %}">Выручка за день</a>
+                </li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                   aria-expanded="false" onclick="loadCartItems()">
+                    Корзина
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ cart_item_count|default:0 }}
+                    </span>
+                </a>
+                <ul class="dropdown-menu" id="cart-dropdown">
+                    <li id="cart-loading" style="display: none;">
+                        <span class="dropdown-item">Loading...</span>
+                    </li>
+                    <li id="cart-empty">
+                        <span class="dropdown-item">Корзина пуста</span>
+                    </li>
+                    <div id="cart-items"></div>
+                    <!-- Кнопка для очистки корзины, скрытая, пока корзина пуста -->
+                    <li><a class="dropdown-item clear-cart-button" href="#" style="display:none;"
+                           onclick="clearCart()">Очистить корзину</a></li>
+                </ul>
+            </li>
+
+
+            </ul>
+            <form class="d-flex" role="search" method="get" action="{% url 'Orders:order-list' %}">
+                <input class="form-control me-2" type="search" placeholder="номер заказа или статус"
+                       aria-label="Search" name="search" value="{{ search_query }}">
+                <button class="btn btn-outline-success" type="submit">Искать</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<script>
+    function loadCartItems() {
+        const cartDropdown = document.getElementById('cart-dropdown');
+        const cartLoading = document.getElementById('cart-loading');
+        const cartEmpty = document.getElementById('cart-empty');
+        const cartItems = document.getElementById('cart-items');
+
+        // Показать индикатор загрузки
+        cartLoading.style.display = 'block';
+        cartItems.innerHTML = '';
+        cartEmpty.style.display = 'none';
+
+        fetch("{% url 'Items:view_cart' %}")
+            .then(response => response.json())
+            .then(data => {
+                cartLoading.style.display = 'none';
+                if (data.items.length > 0) {
+                    cartEmpty.style.display = 'none';
+                    let totalPrice = 0; // Для расчета общей суммы
+                    data.items.forEach(item => {
+                        const itemTotalPrice = item.price * item.quantity; // Расчет цены
+                        totalPrice += itemTotalPrice; // Добавляем к общей сумме
+
+                        const cartItem = `
+                            <li class="dropdown-item">
+                                ${item.name} - ${item.quantity} шт.
+                                - <strong>${itemTotalPrice} руб.</strong>
+                            </li>
+                        `;
+                        cartItems.innerHTML += cartItem;
+                    });
+
+                    // Показать кнопку очистки корзины
+                    const clearCartButton = document.querySelector('.clear-cart-button');
+                    clearCartButton.style.display = 'block';
+                } else {
+                    cartEmpty.style.display = 'block';
+                    const clearCartButton = document.querySelector('.clear-cart-button');
+                    clearCartButton.style.display = 'none';  // Прячем кнопку, если корзина пуста
+                }
+            })
+    }
+
+    function clearCart() {
+        // Отправляем запрос для очистки корзины
+        fetch("{% url 'Items:clear_cart' %}", {
+            method: 'GET',
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message); // Показываем сообщение о том, что корзина очищена
+
+                // Обновляем содержимое корзины и счетчик товаров
+                loadCartItems();
+                updateCartItemCount();
+            })
+            .catch(error => {
+                console.error('Ошибка при очистке корзины:', error);
+                alert('Не удалось очистить корзину.');
+            });
+    }
+</script>

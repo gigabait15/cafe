@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="height: 20vh;">
+    <div class="card shadow-sm" style="width: 600px;">
+        <div class="card-header text-center bg-danger text-white">
+            <h4>Подтверждение удаления</h4>
+        </div>
+        <div class="card-body text-center">
+            <p class="mb-4">Вы уверены, что хотите удалить заказ № <strong>{{ object.id }}
+            </strong> со статусом <em>"{{ object.get_status_display }}"</em>?</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-outline-danger">Подтвердить</button>
+                    <a href="{% url 'Orders:order-list' %}" class="btn btn-outline-success">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
