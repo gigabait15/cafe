@@ -52,4 +52,5 @@ python manage.py runserver
 ### Перейти по адресу: http://127.0.0.1:8000/items/
 
 ---
+### Продакт https://lhlb-rllk-835y.gw-1a.dockhost.net/items/
 
